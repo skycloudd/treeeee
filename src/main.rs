@@ -88,7 +88,17 @@ fn main() -> ExitCode {
                                 tree.add_empty_child(format!(
                                     "{} -> {}",
                                     file_name.blue(),
-                                    entry.path().read_link().unwrap().to_string_lossy().cyan()
+                                    match entry.path().read_link() {
+                                        Ok(s) => s,
+                                        Err(err) => {
+                                            if !args.ignore_errors {
+                                                eprintln!("{}", err);
+                                            }
+                                            continue;
+                                        }
+                                    }
+                                    .to_string_lossy()
+                                    .cyan()
                                 ));
 
                                 files_count += 1;
