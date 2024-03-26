@@ -7,4 +7,5 @@ edition = "2021"
 camino = "1.1.6"
 clap = { version = "4.5.4", features = ["derive"] }
 ignore = "0.4.22"
+owo-colors = "4.0.0"
 ptree = "0.4.0"

@@ -3,6 +3,7 @@
 use camino::Utf8PathBuf;
 use clap::Parser;
 use ignore::WalkBuilder;
+use owo_colors::OwoColorize;
 use ptree::{print_tree, TreeBuilder};
 use std::process::ExitCode;
 
@@ -49,6 +50,7 @@ fn main() -> ExitCode {
 
     let mut files_count: usize = 0;
     let mut dirs_count: usize = 0;
+    let mut symlink_count: usize = 0;
 
     for entry in walker.skip(1) {
         match entry {
@@ -71,14 +73,29 @@ fn main() -> ExitCode {
 
                         match file_type {
                             FileType::Directory => {
-                                tree.begin_child(format!("{}/", file_name));
+                                tree.begin_child(format!("{}/", file_name.green()));
 
                                 current_depth += 1;
 
                                 dirs_count += 1;
                             }
-                            FileType::File | FileType::Symlink | FileType::Other => {
+                            FileType::File => {
                                 tree.add_empty_child(file_name.into());
+
+                                files_count += 1;
+                            }
+                            FileType::Symlink => {
+                                tree.add_empty_child(format!(
+                                    "{} -> {}",
+                                    file_name.blue(),
+                                    entry.path().read_link().unwrap().to_string_lossy().cyan()
+                                ));
+
+                                files_count += 1;
+                                symlink_count += 1;
+                            }
+                            FileType::Other => {
+                                tree.add_empty_child(format!("{}", file_name.red()));
 
                                 files_count += 1;
                             }
@@ -101,7 +118,16 @@ fn main() -> ExitCode {
         })
         .ok();
 
-    println!("\n{} directories, {} files", dirs_count, files_count);
+    println!(
+        "\n{} directories, {} files{}",
+        dirs_count,
+        files_count,
+        if symlink_count > 0 {
+            format!(", {} symlinks", symlink_count)
+        } else {
+            "".to_string()
+        }
+    );
 
     ExitCode::SUCCESS
 }
