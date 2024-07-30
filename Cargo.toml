@@ -9,3 +9,8 @@ clap = { version = "4.5.11", features = ["derive"] }
 ignore = "0.4.22"
 owo-colors = "4.0.0"
 ptree = "0.4.0"
+
+[profile.release-fast]
+inherits = "release"
+lto = "fat"
+codegen-units = 1
