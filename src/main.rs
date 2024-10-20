@@ -19,7 +19,7 @@ struct Args {
     depth: Option<usize>,
 
     /// Display hidden files
-    #[clap(long)]
+    #[clap(short = 'H', long)]
     hidden: bool,
 
     /// Ignore errors
